@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:equatable/equatable.dart';
@@ -14,30 +13,41 @@ class TrafficLightPageBloc
     extends Bloc<TrafficLightPageEvent, TrafficLightPageState> {
   TrafficLightPageBloc() : super(TrafficLightPageLoading()) {
     on<TrafficLightPageInit>((event, emit) {
-      final randomImage = ImageMap.data.keys
-          .toList()[_random.nextInt(ImageMap.data.keys.length)];
-      emit(TrafficLightPageLoaded(
+      final randomPicker =
+          List<int>.generate(ImageMap.data.length, (index) => index)
+            ..shuffle();
+      final randomInt = randomPicker.removeLast();
+      final randomImage = ImageMap.data.keys.toList()[randomInt];
+      final previousImages = randomPicker;
+      emit(
+        TrafficLightPageLoaded(
+          previousImages: previousImages,
           image: Tuple2(randomImage, ImageMap.data[randomImage]!),
-          answers: const []));
+          answers: const [],
+        ),
+      );
     });
     on<TrafficLightPageNextImage>((event, emit) {
       if (state is! TrafficLightPageLoaded) return;
       final currState = state as TrafficLightPageLoaded;
-      if (currState.answers.length >= 3 &&
-          currState.answers.every((element) => element)) {
+      final newAnswers = List<bool>.from(currState.answers)..add(event.answer);
+      if (newAnswers.length == 4 && newAnswers.every((element) => element)) {
         emit(TrafficLightPageSuccess());
         return;
-      } else if (currState.answers.length >= 3) {
+      } else if (newAnswers.length == 4) {
         emit(TrafficLightPageFail());
         return;
       }
-      final randomImage = ImageMap.data.keys
-          .toList()[_random.nextInt(ImageMap.data.keys.length)];
-      print(randomImage);
-      final newAnswers = List<bool>.from(currState.answers)..add(event.answer);
-      emit(TrafficLightPageLoaded(
+      final randomInt = currState.previousImages.removeLast();
+
+      final randomImage = ImageMap.data.keys.toList()[randomInt];
+      emit(
+        TrafficLightPageLoaded(
+          previousImages: currState.previousImages,
           image: Tuple2(randomImage, ImageMap.data[randomImage]!),
-          answers: newAnswers));
+          answers: newAnswers,
+        ),
+      );
     });
   }
 

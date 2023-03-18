@@ -13,16 +13,15 @@ class TrafficLightPageLoaded extends TrafficLightPageState {
   const TrafficLightPageLoaded({
     required this.image,
     required this.answers,
+    required this.previousImages,
   });
 
   final Tuple2<String, bool> image;
+  final List<int> previousImages;
   final List<bool> answers;
 
   @override
-  List<Object> get props => [
-        image,
-        answers,
-      ];
+  List<Object> get props => [image, answers, previousImages];
 }
 
 class TrafficLightPageSuccess extends TrafficLightPageState {
